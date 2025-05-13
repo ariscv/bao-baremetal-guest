@@ -7,6 +7,8 @@ deps:=$(objs:%=%.d) $(gen_ld_file).d
 dirs:=$(sort $(dir $(objs) $(deps)))
 
 cc=$(CROSS_COMPILE)gcc
+ld=$(CROSS_COMPILE)ld
+as=$(CROSS_COMPILE)as
 objcopy=$(CROSS_COMPILE)objcopy
 objdump=$(CROSS_COMPILE)objdump
 
@@ -35,8 +37,12 @@ ifneq ($(NO_FIRMWARE),)
 CPPFLAGS+=-DNO_FIRMWARE=y
 endif
 ASFLAGS += $(GENERIC_FLAGS) $(CPPFLAGS) $(ARCH_ASFLAGS) 
-CFLAGS += $(GENERIC_FLAGS) $(CPPFLAGS) $(ARCH_CFLAGS) 
-LDFLAGS += $(GENERIC_FLAGS) $(ARCH_LDFLAGS) -nostartfiles
+CFLAGS += -fno-asynchronous-unwind-tables -fno-builtin -fno-stack-protector \
+		$(GENERIC_FLAGS) $(CPPFLAGS) $(ARCH_CFLAGS) 
+LDFLAGS += $(ARCH_LDFLAGS) 
+
+CFLAGS    += -fdata-sections -ffunction-sections
+LDFLAGS   += --gc-sections 
 
 target:=$(BUILD_DIR)/$(NAME)
 all: $(target).bin
@@ -49,7 +55,7 @@ $(target).bin: $(target).elf
 	$(objcopy) -O binary $< $@
 
 $(target).elf: $(objs) $(gen_ld_file)
-	$(cc) $(LDFLAGS) -T$(gen_ld_file) $(objs) -o $@
+	$(ld) $(LDFLAGS) -T$(gen_ld_file) --start-group $(objs) --end-group -o $@
 	$(objdump) -S $@ > $(target).asm
 	$(objdump) -x -d --wide $@ > $(target).lst
 
