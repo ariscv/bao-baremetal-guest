@@ -15,9 +15,7 @@
  */
 
 #include <core.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h> 
 #include <cpu.h>
 #include <wfi.h>
 #include <spinlock.h>
@@ -65,7 +63,7 @@ void shmem_init() {
     memset(baremetal_message, 0, shmem_channel_size);
     memset(zephyr_message, 0, shmem_channel_size);
     shmem_update_msg(0);
-    irq_set_handler(SHMEM_IRQ_ID, shmem_handler);
+    irq_set_handler(SHMEM_IRQ_ID, (irq_handler_t)shmem_handler);
     irq_set_prio(SHMEM_IRQ_ID, IRQ_MAX_PRIO);
     irq_enable(SHMEM_IRQ_ID);
 }
@@ -92,7 +90,7 @@ void timer_handler(){
     irq_send_ipi(1ull << (get_cpuid() + 1));
 }
 
-void main(void){
+int main(void){
 
     static volatile bool master_done = false;
 
@@ -101,9 +99,9 @@ void main(void){
         printf("Bao bare-metal test guest\n");
         spin_unlock(&print_lock);
 
-        irq_set_handler(UART_IRQ_ID, uart_rx_handler);
-        irq_set_handler(TIMER_IRQ_ID, timer_handler);
-        irq_set_handler(IPI_IRQ_ID, ipi_handler);
+        irq_set_handler(UART_IRQ_ID, (irq_handler_t)uart_rx_handler);
+        irq_set_handler(TIMER_IRQ_ID, (irq_handler_t)timer_handler);
+        irq_set_handler(IPI_IRQ_ID, (irq_handler_t)ipi_handler);
 
         uart_enable_rxirq();
 
@@ -129,4 +127,6 @@ void main(void){
     spin_unlock(&print_lock);
 
     while(1) wfi();
+    
+    return 0;
 }

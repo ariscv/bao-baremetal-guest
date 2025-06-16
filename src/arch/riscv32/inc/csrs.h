@@ -19,7 +19,7 @@
 #define RV64   (__riscv_xlen == 64)
 #define RV32   (__riscv_xlen == 32)
 
-#if(!(RV64))
+#if(!(RV64) && !(RV32))
     #error "Unsupported __riscv_xlen #__riscv_xlen."
 #endif
 

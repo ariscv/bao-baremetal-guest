@@ -2,12 +2,13 @@
 #define CPU_H
 
 #include <core.h>
+#include <stdint.h>
+#include <csrs.h>
 
 extern int primary_hart;
 
-static inline unsigned long get_cpuid(){
-    register unsigned long hartid asm("tp");
-    return hartid;
+static inline uint32_t get_cpuid(){
+    return CSRR(sscratch);
 }
 
 static inline bool cpu_is_master(){

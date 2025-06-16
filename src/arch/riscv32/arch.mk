@@ -1,4 +1,5 @@
 CROSS_COMPILE ?= riscv64-linux-gnu-
+# override CROSS_COMPILE := riscv32-unknown-elf-
 ARCH_GENERIC_FLAGS = -fno-pic \
 				-mstrict-align -mcmodel=medany \
 				-march=rv32ima_zicsr -mabi=ilp32 

@@ -30,7 +30,7 @@ endif
 ifneq ($(MEM_SIZE),)
 CPPFLAGS+=-DMEM_SIZE=$(MEM_SIZE)
 endif
-ifneq ($(SINGLE_CORE),)
+ifeq ($(SINGLE_CORE),y)
 CPPFLAGS+=-DSINGLE_CORE=y
 endif
 ifneq ($(NO_FIRMWARE),)

@@ -2,6 +2,7 @@
 #include <csrs.h>
 #include <plic.h>
 #include <irq.h>
+#include <stdio.h>
 
 static bool is_external(unsigned long cause) {
     switch(cause) {
@@ -18,11 +19,11 @@ void exception_handler(){
     
     unsigned long scause = CSRR(scause);
     if(is_external(scause)) {
-        //plic_handle();
+        plic_handle();
     } else {
        size_t msb = sizeof(unsigned long) * 8 - 1;
        unsigned long id = (scause & ~(1ull << msb)) + 1024;
-       //irq_handle(id);
+       irq_handle(id);
        if(id == IPI_IRQ_ID) {
            CSRC(sip, SIP_SSIE);
        }
